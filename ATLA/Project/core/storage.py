@@ -1,24 +1,36 @@
-def save_accounts(accounts_list):
-    with open("./Project/core/Account_List.txt", "w") as file:
-        for acc in accounts_list:
-            file.write(f"{acc.owner_name}|{acc.account_number}|{acc.show_balance()}\n")
+from uuid import UUID
+
+from core.models import Account
+
+
+def save_account(account: Account):
+    with open("./ATLA/Project/core/Account_List.txt", "a") as file:
+        file.write(
+            f"{account.owner_name}|{account.account_number}|{account.show_balance()}\n"
+        )
 
 
 def load_accounts():
-    accounts = []
-
-    try: #Try, except
+    accounts: list[Account] = []
+    try:
         with open("./Project/core/Account_List.txt", "r") as file:
-            from core.models import Account
             for line in file:
-                parts = [p.strip() for p in line.strip().split("|")]
-                if len(parts) != 3: #GPT
-                    print(f"Ошибка строки: {line}") #GPT
-                    continue #GPT
+                parts = line.strip().split("|")
+                if len(parts) != 3:
+                    print(f"Ошибка строки: {line}")
+                    continue
+
                 name, number, balance = parts
-                acc = Account(name, float(balance))
-                acc.account_number = int(number)
-                accounts.append(acc)
+                accounts.append(
+                    Account(
+                        name,
+                        float(balance),
+                        UUID(number),
+                    )
+                )
+
     except FileNotFoundError:
+        print("Файл не найден, создается новый.")
         pass
+
     return accounts
